@@ -1,6 +1,6 @@
 
 # Introduce
-**1. include ScanView to your layout**
+**1. include BarcodeScannerView to your layout**
 ```java 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
