@@ -47,7 +47,8 @@ public class QRCodeReaderView extends SurfaceView
 	protected CameraManager mCameraManager;
 	private BeepManager beepManager;
 	private DecodeHandler decodeHandler;
-	private DecodeHandler.OnQRCodeReadListener onQRCodeReadListener;
+	private DecodeHandler.OnCodeReadListener onCodeReadListener;
+	private boolean justQrcode = false;
 
 	protected QRCodeReaderView(Context context) {
 		this(context, null);
@@ -73,16 +74,20 @@ public class QRCodeReaderView extends SurfaceView
 	/**
 	 * Set the callback to return decoding result
 	 *
-	 * @param onQRCodeReadListener the listener
+	 * @param onCodeReadListener the listener
 	 */
-	public void setOnQRCodeReadListener(final DecodeHandler.OnQRCodeReadListener onQRCodeReadListener) {
-		this.onQRCodeReadListener = new DecodeHandler.OnQRCodeReadListener() {
+	public void setOnCodeReadListener(final DecodeHandler.OnCodeReadListener onCodeReadListener) {
+		this.onCodeReadListener = new DecodeHandler.OnCodeReadListener() {
 			@Override
-			public void onQRCodeRead(String text) {
+			public void onCodeRead(String text) {
 				beepManager.playBeepSoundAndVibrate();
-				onQRCodeReadListener.onQRCodeRead(text);
+				onCodeReadListener.onCodeRead(text);
 			}
 		};
+	}
+
+	public void justEnableQrcode() {
+		justQrcode = true;
 	}
 
 	/**
@@ -93,7 +98,10 @@ public class QRCodeReaderView extends SurfaceView
 		beepManager.init();
 		if (decodeHandler == null || decodeHandler.isStop()) {
 			decodeHandler = DecodeHandler.getInstance(mCameraManager);
-			decodeHandler.setOnQRCodeReadListener(onQRCodeReadListener);
+			decodeHandler.setOnCodeReadListener(onCodeReadListener);
+			if (justQrcode) {
+				decodeHandler.justQrCodeEnable();
+			}
 		}
 		Log.d(TAG, "startCamera");
 	}

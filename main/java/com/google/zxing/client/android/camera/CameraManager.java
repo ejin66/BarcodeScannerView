@@ -64,17 +64,19 @@ public final class CameraManager {
 
 	public synchronized void requestOneShotFrame(final DecodeHandler decodeHandler) {
 		if (isOpen()) {
-			openCamera.getCamera().autoFocus(new Camera.AutoFocusCallback() {
-				@Override
-				public void onAutoFocus(boolean success, Camera camera) {
-					if (success) {
-						oneShotPreviewCallback.setHandler(decodeHandler, MessageState.DECODE);
-						openCamera.getCamera().setOneShotPreviewCallback(oneShotPreviewCallback);
-					} else {
-						requestOneShotFrame(decodeHandler);
-					}
-				}
-			});
+//			openCamera.getCamera().autoFocus(new Camera.AutoFocusCallback() {
+//				@Override
+//				public void onAutoFocus(boolean success, Camera camera) {
+//					if (success) {
+//						oneShotPreviewCallback.setHandler(decodeHandler, MessageState.DECODE);
+//						openCamera.getCamera().setOneShotPreviewCallback(oneShotPreviewCallback);
+//					} else {
+//						requestOneShotFrame(decodeHandler);
+//					}
+//				}
+//			});
+			oneShotPreviewCallback.setHandler(decodeHandler, MessageState.DECODE);
+			openCamera.getCamera().setOneShotPreviewCallback(oneShotPreviewCallback);
 		}
 	}
 
@@ -218,8 +220,8 @@ public final class CameraManager {
 		if (theCamera != null && !previewing) {
 			theCamera.getCamera().startPreview();
 			previewing = true;
-//			autoFocusManager = new AutoFocusManager(theCamera.getCamera());
-//			autoFocusManager.setAutofocusInterval(autofocusIntervalInMs);
+			autoFocusManager = new AutoFocusManager(theCamera.getCamera());
+			autoFocusManager.setAutofocusInterval(autofocusIntervalInMs);
 		}
 	}
 
@@ -267,11 +269,12 @@ public final class CameraManager {
 			if (openCamera == null) {
 				return null;
 			}
-			int width = Math.min(screenResolution.x, screenResolution.y) * 2 / 3;
+			int width = Math.min(screenResolution.x, screenResolution.y) / 2;
 			int height = width;
 			int leftOffset = (screenResolution.x - width) / 2;
 			int topOffset = (screenResolution.y - height) / 2;
 			framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
+			Log.d(TAG, "framingRect: " + framingRect);
 		}
 		return framingRect;
 	}
@@ -290,30 +293,25 @@ public final class CameraManager {
 				return null;
 			}
 			Rect rect = new Rect(framingRect);
-			Point cameraResolution = configManager.getCameraResolution();
+			Point previewSizeOnScreen = configManager.getPreviewSizeOnScreen();
 			Point screenResolution = configManager.getScreenResolution();
-			if (cameraResolution == null || screenResolution == null) {
+			if (previewSizeOnScreen == null || screenResolution == null) {
 				// Called early, before init even finished
 				return null;
 			}
-			if (screenResolution.x < screenResolution.y) {
-				// portrait
-				rect.left = rect.left * cameraResolution.y / screenResolution.x;
-				rect.right = rect.right * cameraResolution.y / screenResolution.x;
-				rect.top = rect.top * cameraResolution.x / screenResolution.y;
-				rect.bottom = rect.bottom * cameraResolution.x / screenResolution.y;
-			} else {
-				// landscape
-				rect.left = rect.left * cameraResolution.x / screenResolution.x;
-				rect.right = rect.right * cameraResolution.x / screenResolution.x;
-				rect.top = rect.top * cameraResolution.y / screenResolution.y;
-				rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-			}
+			Log.d(TAG, "previewSizeOnScreen: " + previewSizeOnScreen);
+			Log.d(TAG, "screenResolution: " + screenResolution);
+
+
+			rect.left = rect.left * previewSizeOnScreen.x / screenResolution.x;
+			rect.right = rect.right * previewSizeOnScreen.x / screenResolution.x;
+			rect.top = rect.top * previewSizeOnScreen.y / screenResolution.y;
+			rect.bottom = rect.bottom * previewSizeOnScreen.y / screenResolution.y;
+
 			framingRectInPreview = rect;
-//			int moreWidth = rect.left / 3;
-//			framingRectInPreview.set(rect.left - moreWidth, rect.top - moreWidth, rect.right + moreWidth, rect.bottom + moreWidth);
+			Log.d(TAG, "getFramingRectInPreview: " + framingRectInPreview);
 		}
-		Log.d(TAG, "getFramingRectInPreview: " + framingRectInPreview);
+
 		return framingRectInPreview;
 	}
 }

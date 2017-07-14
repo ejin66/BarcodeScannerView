@@ -2,24 +2,21 @@ package com.ejin.barcode;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.google.zxing.client.android.camera.DecodeHandler;
-import com.google.zxing.scanview.QRCodeReaderView;
-import com.google.zxing.scanview.ScanView;
+import com.google.zxing.scanview.BarcodeScannerView;
 
 /**
  * Created by j17420 on 2017/7/11.
  */
 
-public class QrcodeActivity extends AppCompatActivity implements DecodeHandler.OnQRCodeReadListener {
+public class QrcodeActivity extends AppCompatActivity implements DecodeHandler.OnCodeReadListener {
 
-	ScanView scanView;
+	BarcodeScannerView scanView;
 
 	public static void start(Context context) {
 		Intent intent = new Intent(context, QrcodeActivity.class);
@@ -34,12 +31,12 @@ public class QrcodeActivity extends AppCompatActivity implements DecodeHandler.O
 	}
 
 	private void initView() {
-		scanView = (ScanView) findViewById(R.id.qrcoderiew);
-		scanView.setOnQRCodeReadListener(this);
+		scanView = (BarcodeScannerView) findViewById(R.id.qrcoderiew);
+		scanView.setOnCodeReadListener(this);
 	}
 
 	@Override
-	public void onQRCodeRead(String text) {
+	public void onCodeRead(String text) {
 		finish();
 		Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
 	}

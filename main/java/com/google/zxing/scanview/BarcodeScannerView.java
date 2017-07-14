@@ -19,7 +19,7 @@ import com.google.zxing.client.android.camera.DecodeHandler;
  * Created by j17420 on 2017/7/12.
  */
 
-public class ScanView extends FrameLayout {
+public class BarcodeScannerView extends FrameLayout {
 
 	QRCodeReaderView qrCodeView;
 	private int maskColor = Color.parseColor("#60000000");
@@ -59,15 +59,15 @@ public class ScanView extends FrameLayout {
 	 */
 	private static final long ANIMATION_DELAY = 10L;
 
-	public ScanView(@NonNull Context context) {
+	public BarcodeScannerView(@NonNull Context context) {
 		this(context, null);
 	}
 
-	public ScanView(@NonNull Context context, @Nullable AttributeSet attrs) {
+	public BarcodeScannerView(@NonNull Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public ScanView(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
+	public BarcodeScannerView(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		addQRCoderView();
 	}
@@ -78,12 +78,16 @@ public class ScanView extends FrameLayout {
 		addView(qrCodeView);
 	}
 
+	public void justEnableQrcode() {
+		qrCodeView.justEnableQrcode();
+	}
+
 	public QRCodeReaderView getQrCodeReaderView() {
 		return qrCodeView;
 	}
 
-	public void setOnQRCodeReadListener(DecodeHandler.OnQRCodeReadListener onQRCodeReadListener) {
-		qrCodeView.setOnQRCodeReadListener(onQRCodeReadListener);
+	public void setOnCodeReadListener(DecodeHandler.OnCodeReadListener onCodeReadListener) {
+		qrCodeView.setOnCodeReadListener(onCodeReadListener);
 	}
 
 	public void startCamera() {

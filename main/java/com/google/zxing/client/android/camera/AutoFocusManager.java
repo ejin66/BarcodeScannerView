@@ -44,7 +44,7 @@ final class AutoFocusManager implements Camera.AutoFocusCallback {
 
 	private static final String TAG = AutoFocusManager.class.getSimpleName();
 
-	protected static final long DEFAULT_AUTO_FOCUS_INTERVAL_MS = 1000L;
+	protected static final long DEFAULT_AUTO_FOCUS_INTERVAL_MS = 500L;
 	private static final Collection<String> FOCUS_MODES_CALLING_AF;
 	private long autofocusIntervalMs = DEFAULT_AUTO_FOCUS_INTERVAL_MS;
 
@@ -104,7 +104,7 @@ final class AutoFocusManager implements Camera.AutoFocusCallback {
 					// Have heard RuntimeException reported in Android 4.0.x+; continue?
 					Log.w(TAG, "Unexpected exception while focusing", re);
 					// Try again later to keep cycle going
-//          autoFocusAgainLater();
+          			autoFocusAgainLater();
 				}
 			}
 		}

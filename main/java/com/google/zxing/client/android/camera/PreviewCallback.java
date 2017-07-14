@@ -1,7 +1,6 @@
 package com.google.zxing.client.android.camera;
 
 import android.hardware.Camera;
-import android.os.Handler;
 
 /**
  * Created by j17420 on 2017/7/13.

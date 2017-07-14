@@ -161,6 +161,7 @@ final class CameraConfigurationManager {
 		}
 
 		parameters.setPreviewSize(bestPreviewSize.x, bestPreviewSize.y);
+//		parameters.setPreviewSize(previewSizeOnScreen.x, previewSizeOnScreen.y);
 
 		theCamera.setParameters(parameters);
 

@@ -28,10 +28,11 @@ import java.util.concurrent.CountDownLatch;
 public class DecodeHandler extends Handler {
 
 	private CameraManager cameraManager;
-	private MultiFormatReader multiFormatReader;
-	private OnQRCodeReadListener onQRCodeReadListener;
+	private MultiFormatReader reader;
+	private OnCodeReadListener onCodeReadListener;
 	private boolean isRunning;
 	private final String TAG = DecodeHandler.class.getSimpleName();
+	private Map<DecodeHintType,Object> map;
 
 	public static DecodeHandler getInstance(CameraManager cameraManager) {
 		DecodeThread decodeThread = new DecodeThread(cameraManager);
@@ -43,25 +44,30 @@ public class DecodeHandler extends Handler {
 		super();
 		isRunning = true;
 		this.cameraManager = cameraManager;
-		multiFormatReader = new MultiFormatReader();
-
-		multiFormatReader.setHints(getDefaultHints());
+		reader = new MultiFormatReader();
+		map = new HashMap<>();
+		setDefaultHints();
+		reader.setHints(map);
 	}
 
-	private Map<DecodeHintType,Object> getDefaultHints() {
-		Map<DecodeHintType,Object> map = new HashMap<DecodeHintType, Object>(20);
-
+	private void setDefaultHints() {
 		List<BarcodeFormat> formatList = new ArrayList<>();
+		formatList.addAll(DecodeFormatManager.QR_CODE_FORMATS);
 		formatList.addAll(DecodeFormatManager.PRODUCT_FORMATS);
 		formatList.addAll(DecodeFormatManager.INDUSTRIAL_FORMATS);
-		formatList.addAll(DecodeFormatManager.QR_CODE_FORMATS);
 		map.put(DecodeHintType.POSSIBLE_FORMATS , formatList);
-
-		return map;
 	}
 
-	public void setOnQRCodeReadListener(OnQRCodeReadListener onQRCodeReadListener) {
-		this.onQRCodeReadListener = onQRCodeReadListener;
+	public void setOnCodeReadListener(OnCodeReadListener onCodeReadListener) {
+		this.onCodeReadListener = onCodeReadListener;
+	}
+
+	public void justQrCodeEnable() {
+		map.clear();
+		List<BarcodeFormat> formatList = new ArrayList<>();
+		formatList.addAll(DecodeFormatManager.QR_CODE_FORMATS);
+		map.put(DecodeHintType.POSSIBLE_FORMATS , formatList);
+		reader.setHints(map);
 	}
 
 	public void requestOneShotFrame() {
@@ -98,8 +104,8 @@ public class DecodeHandler extends Handler {
 					return;
 				}
 
-				if (onQRCodeReadListener != null) {
-					onQRCodeReadListener.onQRCodeRead(result);
+				if (onCodeReadListener != null) {
+					onCodeReadListener.onCodeRead(result);
 				}
 
 				break;
@@ -118,8 +124,9 @@ public class DecodeHandler extends Handler {
 		int width = cameraManager.getPreviewSize().x;
 		int height = cameraManager.getPreviewSize().y;
 		byte[] data = frameData;
+
+		// portrait
 		if (width < height) {
-			// portrait
 			byte[] rotatedData = new byte[data.length];
 			for (int x = 0; x < width; x++) {
 				for (int y = 0; y < height; y++)
@@ -127,24 +134,24 @@ public class DecodeHandler extends Handler {
 			}
 			data = rotatedData;
 		}
-		final PlanarYUVLuminanceSource source = cameraManager.buildLuminanceSource(data, width, height);
-		final HybridBinarizer hybBin = new HybridBinarizer(source);
-		final BinaryBitmap bitmap = new BinaryBitmap(hybBin);
+
+		PlanarYUVLuminanceSource source = cameraManager.buildLuminanceSource(data, width, height);
+		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 		try {
-			Result result = multiFormatReader.decodeWithState(bitmap);
+			Result result = reader.decodeWithState(bitmap);
 			return result.getText();
 		} catch (ReaderException re) {
 			Log.d(TAG, "ReaderException");
 		} finally {
-			multiFormatReader.reset();
+			reader.reset();
 			Log.d("Decode","----end");
 		}
 		return null;
 	}
 
-	public interface OnQRCodeReadListener {
+	public interface OnCodeReadListener {
 
-		void onQRCodeRead(String text);
+		void onCodeRead(String text);
 	}
 
 	private static class DecodeThread extends Thread {
