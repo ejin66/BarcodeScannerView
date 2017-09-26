@@ -8,7 +8,7 @@
               android:layout_height="match_parent"
               android:gravity="center_horizontal">
 
-    <com.google.zxing.scanview.BarcodeScannerView
+    <com.ejin.sample.scanview.BarcodeScannerView
         android:id="@+id/scanView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -18,9 +18,9 @@
 
 **2. set Listener:**
 ```java
-scanView.setOnCodeReadListener(new OnCodeReadListener() {
+scanView.setOnCodeReadListener(new DecodeListener() {
   	@Override
-	public void onCodeRead(String text) {
+	public void onRead(String s) {
 		//...
 	}
 });
